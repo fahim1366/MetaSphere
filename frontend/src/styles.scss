@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@import "primeicons/primeicons.css";
+
+/* ==========================================================================
+   MetaSphere Global Theme & RTL/LTR Design Tokens
+   ========================================================================== */
+
+:root {
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --color-primary: #1e40af;
+  --color-primary-hover: #1d4ed8;
+  --color-bg-base: #f8fafc;
+  --color-text-base: #0f172a;
+}
+
+[dir="rtl"] {
+  font-family: "Vazirmatn", var(--font-family-sans);
+  text-align: right;
+}
+
+[dir="ltr"] {
+  font-family: "Inter", var(--font-family-sans);
+  text-align: left;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base accessible focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

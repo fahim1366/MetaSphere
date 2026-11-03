@@ -26,7 +26,7 @@
 
 **Purpose**: Establish the repository layout, pinned toolchain anchors, dependency manifests/lockfiles, and local PostgreSQL/Redis infrastructure.
 
-- [ ] T001 Initialize the strict monorepo directory structure.
+- [X] T001 Initialize the strict monorepo directory structure.
   - **Target**: `backend/`, `frontend/`, `infrastructure/`, `scripts/`, `docs/`
   - **Requirement**: FR-001
   - **Dependencies**: None
@@ -35,7 +35,7 @@
     2. Empty directories are tracked using `.gitkeep` only where needed.
     3. No additional application root directory is introduced.
 
-- [ ] T002 [P] Configure repository-level Git attributes and ignore rules.
+- [X] T002 [P] Configure repository-level Git attributes and ignore rules.
   - **Target**: `.gitignore`, `.gitattributes`
   - **Requirement**: FR-004, NFR-002
   - **Dependencies**: T001
@@ -45,7 +45,7 @@
     3. It does not ignore lockfiles, migration files, source files, or sanitized examples.
     4. `.gitattributes` defines consistent text handling and LF endings for shell scripts and Docker-related files; Windows scripts are handled consistently with the documented PowerShell workflow.
 
-- [ ] T003 [P] Configure the Python 3.12 backend manifest and reproducible dependency lock.
+- [X] T003 [P] Configure the Python 3.12 backend manifest and reproducible dependency lock.
   - **Target**: `backend/pyproject.toml`, `backend/.python-version`, `backend/requirements.in`, `backend/requirements.lock`
   - **Requirement**: FR-002, FR-016, FR-019, NFR-001
   - **Dependencies**: T001
@@ -59,7 +59,7 @@
     7. Documentation explains how to build a wheelhouse in a connected staging environment and install from it offline using `pip install --no-index --find-links=<wheelhouse> -r requirements.lock`.
     8. The selected lock-generation process is repeatable and does not require a public package index on the isolated target machine.
 
-- [ ] T004 [P] Configure the Angular 22 frontend, Node runtime anchors, and npm lockfile.
+- [X] T004 [P] Configure the Angular 22 frontend, Node runtime anchors, and npm lockfile.
   - **Target**: `frontend/.nvmrc`, `frontend/package.json`, `frontend/package-lock.json`
   - **Requirement**: FR-011, FR-020, NFR-001
   - **Dependencies**: T001
@@ -72,7 +72,7 @@
     6. The offline workflow uses a populated npm cache or an approved internal registry. `npm ci --offline --cache <cache-path>` must be the offline verification command when cache-based installation is selected.
     7. Required Angular/esbuild lifecycle scripts are not disabled or stripped; any install-script policy is documented and verified.
 
-- [ ] T005 [P] Create local development Docker Compose infrastructure for PostgreSQL and Redis.
+- [X] T005 [P] Create local development Docker Compose infrastructure for PostgreSQL and Redis.
   - **Target**: `infrastructure/docker-compose.yml`
   - **Requirement**: FR-014, FR-015
   - **Dependencies**: T001
@@ -91,7 +91,7 @@
 
 **Purpose**: Implement the framework and persistence foundations required by the user stories.
 
-- [ ] T006 Implement centralized application settings and production validation.
+- [X] T006 Implement centralized application settings and production validation.
   - **Target**: `backend/app/core/config.py`
   - **Requirement**: FR-003, NFR-002
   - **Dependencies**: T003
@@ -102,7 +102,7 @@
     4. Local development defaults are explicitly limited to the local development environment.
     5. Configuration validation has unit tests for valid development settings and invalid production settings.
 
-- [ ] T007 [P] Create the sanitized backend environment template.
+- [X] T007 [P] Create the sanitized backend environment template.
   - **Target**: `backend/.env.example`
   - **Requirement**: FR-004, NFR-002
   - **Dependencies**: T006
@@ -112,7 +112,7 @@
     3. Names and types match the settings implementation exactly.
     4. Copying the file is documented as a local setup step; the real `.env` remains ignored by Git.
 
-- [ ] T008 [P] Implement structured logging and secret masking for API and worker processes.
+- [X] T008 [P] Implement structured logging and secret masking for API and worker processes.
   - **Target**: `backend/app/core/logging.py`
   - **Requirement**: NFR-002, NFR-005
   - **Dependencies**: T003
@@ -123,7 +123,7 @@
     4. Tests prove representative secrets do not appear in emitted log records, including exception messages containing credential-bearing URLs.
     5. Logging does not log request bodies or configuration objects wholesale.
 
-- [ ] T009 Implement FastAPI application creation, correlation middleware, and safe exception handling.
+- [X] T009 Implement FastAPI application creation, correlation middleware, and safe exception handling.
   - **Target**: `backend/app/main.py`, `backend/app/core/exceptions.py` (if separated)
   - **Requirement**: NFR-002, NFR-005
   - **Dependencies**: T006, T008
@@ -134,7 +134,7 @@
     4. Client responses do not disclose stack traces, filesystem paths, SQL text, connection strings, or secrets.
     5. The generic internal error response follows the agreed API error shape.
 
-- [ ] T010 Implement the synchronous SQLAlchemy 2.x engine, declarative base, and role-specific connection budgets.
+- [X] T010 Implement the synchronous SQLAlchemy 2.x engine, declarative base, and role-specific connection budgets.
   - **Target**: `backend/app/db/base.py`, `backend/app/db/session.py`
   - **Requirement**: FR-005, NFR-003
   - **Dependencies**: T006
@@ -150,7 +150,7 @@
     9. Distinguish connection establishment timeout from SQL statement timeout. Use `connect_timeout=2` for connection establishment and configure a bounded statement timeout for the health query as specified in T030; do not imply that `connect_timeout` limits query execution.
     10. Unit tests validate role-specific pool configuration without requiring a live PostgreSQL server.
 
-- [ ] T011 Implement the database session dependency.
+- [X] T011 Implement the database session dependency.
   - **Target**: `backend/app/api/deps.py`
   - **Requirement**: FR-005, NFR-003
   - **Dependencies**: T010
@@ -160,7 +160,7 @@
     3. The dependency does not create a new engine per request.
     4. Tests verify cleanup and exception behavior using a test session.
 
-- [ ] T012 Initialize the synchronous Alembic migration environment.
+- [X] T012 Initialize the synchronous Alembic migration environment.
   - **Target**: `backend/alembic.ini`, `backend/alembic/env.py`, `backend/alembic/script.py.mako`
   - **Requirement**: FR-006
   - **Dependencies**: T006, T010
@@ -171,7 +171,7 @@
     4. No async database shim or duplicate settings source is introduced.
     5. Autogeneration and migration commands work from the documented backend working directory.
 
-- [ ] T013 Wire the central API router and application lifespan.
+- [X] T013 Wire the central API router and application lifespan.
   - **Target**: `backend/app/api/api_router.py`, `backend/app/main.py`
   - **Requirement**: FR-002, NFR-003
   - **Dependencies**: T009
@@ -183,7 +183,7 @@
     5. Routers remain thin: request parsing, dependency injection, and response formatting only; application behavior belongs in services and persistence behavior in repositories.
     6. Changes to `main.py` preserve the middleware and exception behavior implemented in T009.
 
-- [ ] T014 [P] Configure pytest and backend test fixtures with unit/integration separation.
+- [X] T014 [P] Configure pytest and backend test fixtures with unit/integration separation.
   - **Target**: `backend/pyproject.toml`, `backend/tests/conftest.py`, `backend/tests/unit/`, `backend/tests/integration/`
   - **Requirement**: FR-018
   - **Dependencies**: T003, T006, T010, T011
@@ -195,7 +195,7 @@
     5. Tests that require a real PostgreSQL or Redis instance explicitly use integration markers and fail with a clear prerequisite message when infrastructure is unavailable.
     6. Test fixtures do not use production credentials or mutate a developer's persistent database.
 
-- [ ] T015 [P] Configure Vitest for frontend unit testing.
+- [X] T015 [P] Configure Vitest for frontend unit testing.
   - **Target**: `frontend/vitest.config.ts`, `frontend/tsconfig.spec.json`, `frontend/package.json`
   - **Requirement**: FR-020
   - **Dependencies**: T004
@@ -205,7 +205,7 @@
     3. No Karma, Jasmine, or Chrome installation is required.
     4. Test TypeScript configuration is strict and consistent with the Angular application configuration.
 
-- [ ] T016 [P] Configure Tailwind CSS 4 and PrimeNG theme integration.
+- [X] T016 [P] Configure Tailwind CSS 4 and PrimeNG theme integration.
   - **Target**: `frontend/src/styles.scss`, `frontend/angular.json`
   - **Requirement**: FR-012, FR-017
   - **Dependencies**: T004
@@ -224,7 +224,7 @@
 
 **Independent Test**: Start the two Compose datastores, launch FastAPI and Angular using the documented commands, and verify both applications respond. Measure actual application process startup rather than only checking whether a TCP port is open.
 
-- [ ] T017 [US1] Finalize the backend local startup entry point and command.
+- [X] T017 [US1] Finalize the backend local startup entry point and command.
   - **Target**: `backend/pyproject.toml`, `backend/app/main.py`
   - **Requirement**: FR-002, FR-015, NFR-005
   - **Dependencies**: T013
@@ -234,7 +234,7 @@
     3. Startup and shutdown logs are structured and do not expose secrets.
     4. The command and working directory are recorded in `docs/dev-setup.md` by T042.
 
-- [ ] T018 [P] [US1] Configure Angular 22 standalone application bootstrap.
+- [X] T018 [P] [US1] Configure Angular 22 standalone application bootstrap.
   - **Target**: `frontend/angular.json`, `frontend/src/main.ts`, `frontend/src/index.html`
   - **Requirement**: FR-011, FR-015, FR-017
   - **Dependencies**: T004, T016
@@ -245,7 +245,7 @@
     4. `npm start` serves the SPA on `http://localhost:4200` with development reload.
     5. The initial document supports direction changes and loads no external CDN assets.
 
-- [ ] T019 [US1] Verify hybrid development connectivity and real application startup time.
+- [X] T019 [US1] Verify hybrid development connectivity and real application startup time.
   - **Target**: `backend/tests/integration/test_hybrid_dev.py`
   - **Requirement**: FR-015, FR-018, NFR-004, SC-001
   - **Dependencies**: T005, T014, T017, T018
@@ -265,7 +265,7 @@
 
 **Independent Test**: On a clean PostgreSQL database, run `alembic upgrade head`, verify the version state, then run `alembic downgrade -1` and verify rollback.
 
-- [ ] T020 [US2] Create the initial Alembic baseline revision.
+- [X] T020 [US2] Create the initial Alembic baseline revision.
   - **Target**: `backend/alembic/versions/0001_initial_baseline.py`
   - **Requirement**: FR-006, SC-004
   - **Dependencies**: T010, T012
@@ -275,7 +275,7 @@
     3. Downgrade reverses every change made by this revision.
     4. Migration behavior is deterministic on a clean database.
 
-- [ ] T021 [US2] Implement integration tests for migration upgrade and downgrade.
+- [X] T021 [US2] Implement integration tests for migration upgrade and downgrade.
   - **Target**: `backend/tests/integration/test_migrations.py`
   - **Requirement**: FR-006, FR-018, SC-004
   - **Dependencies**: T014, T020
@@ -295,7 +295,7 @@
 
 **Independent Test**: Start a real Celery worker, dispatch the baseline task, and retrieve its result within the specified threshold.
 
-- [ ] T022 [US3] Configure the Celery application and bounded worker/database connection budget.
+- [X] T022 [US3] Configure the Celery application and bounded worker/database connection budget.
   - **Target**: `backend/app/jobs/celery_app.py`
   - **Requirement**: FR-007, NFR-005
   - **Dependencies**: T006, T008, T010
@@ -308,7 +308,7 @@
     6. Windows development instructions use a supported Windows-compatible pool such as `solo`; production Linux worker pool configuration is documented separately.
     7. Redis retry and visibility settings are explicit and compatible with the baseline task behavior.
 
-- [ ] T023 [US3] Implement the baseline Celery health-check task.
+- [X] T023 [US3] Implement the baseline Celery health-check task.
   - **Target**: `backend/app/jobs/tasks.py`
   - **Requirement**: FR-008, SC-005, Contract `celery-task.json`
   - **Dependencies**: T022
@@ -319,7 +319,7 @@
     4. Does not access application business data or perform unrelated side effects.
     5. The returned payload validates against `contracts/celery-task.json`.
 
-- [ ] T024 [US3] Implement unit tests for baseline Celery task behavior.
+- [X] T024 [US3] Implement unit tests for baseline Celery task behavior.
   - **Target**: `backend/tests/unit/test_tasks.py`
   - **Requirement**: FR-008, FR-018, Contract `celery-task.json`
   - **Dependencies**: T014, T023
@@ -329,7 +329,7 @@
     3. Verifies field types, timestamp format, status value, and nonnegative duration.
     4. Is marked `unit`.
 
-- [ ] T025 [US3] Implement real Celery worker roundtrip integration test.
+- [X] T025 [US3] Implement real Celery worker roundtrip integration test.
   - **Target**: `backend/tests/integration/test_celery_worker.py`
   - **Requirement**: FR-008, FR-018, SC-005
   - **Dependencies**: T005, T014, T022, T023
@@ -351,7 +351,7 @@
 
 **Independent Test**: Verify liveness without datastore access; verify healthy readiness; then interrupt PostgreSQL or Redis and verify a sanitized HTTP 503 within the specified failure-detection target. Run saturation and recovery tests.
 
-- [ ] T026 [P] [US4] Implement Pydantic health response models.
+- [X] T026 [P] [US4] Implement Pydantic health response models.
   - **Target**: `backend/app/schemas/health.py`
   - **Requirement**: FR-009, FR-010, Contract `health-api.json`
   - **Dependencies**: T006
@@ -361,7 +361,7 @@
     3. Includes component-level status information for PostgreSQL and Redis.
     4. Contract validation tests cover valid and invalid payloads.
 
-- [ ] T027 [US4] Implement a Redis client factory with explicit network timeouts.
+- [X] T027 [US4] Implement a Redis client factory with explicit network timeouts.
   - **Target**: `backend/app/core/redis.py`
   - **Requirement**: FR-010
   - **Dependencies**: T006
@@ -371,7 +371,7 @@
     3. Exposes a dependency/provider suitable for application lifespan management and tests.
     4. Does not log or expose the Redis URL or credentials.
 
-- [ ] T028 [US4] Implement bounded readiness-probe admission control and executor lifecycle.
+- [X] T028 [US4] Implement bounded readiness-probe admission control and executor lifecycle.
   - **Target**: `backend/app/api/routes/health.py`, `backend/app/core/health_probe.py` (if separated)
   - **Requirement**: FR-009, FR-010, NFR-004
   - **Dependencies**: T010, T026, T027
@@ -389,7 +389,7 @@
     11. The implementation does not rely on `asyncio.wait_for` to terminate a blocking thread.
     12. Tests cover permit acquisition, saturation, completion, cancellation, and exactly-once release.
 
-- [ ] T029 [US4] Implement `GET /health/live`.
+- [X] T029 [US4] Implement `GET /health/live`.
   - **Target**: `backend/app/api/routes/health.py`
   - **Requirement**: FR-009, NFR-004, Contract `health-api.json`
   - **Dependencies**: T028
@@ -400,7 +400,7 @@
     4. Local measured response time is `<5ms` under the defined benchmark conditions.
     5. The endpoint does not disclose internal configuration.
 
-- [ ] T030 [US4] Implement `GET /health/ready` with concurrent PostgreSQL and Redis checks.
+- [X] T030 [US4] Implement `GET /health/ready` with concurrent PostgreSQL and Redis checks.
   - **Target**: `backend/app/api/routes/health.py`, `backend/app/core/health_probe.py`
   - **Requirement**: FR-010, NFR-003, NFR-004, SC-003, Contract `health-api.json`
   - **Dependencies**: T027, T028, T029
@@ -416,7 +416,7 @@
     9. Failure detection is measured against the SC-003 target of two seconds for the specified intentional datastore-disconnect scenarios. Do not claim a universal hard two-second bound based only on socket timeout settings; validate connection failure, stalled query, event-loop scheduling, and response overhead experimentally.
     10. If the measured failure-detection target cannot be met, document the evidence and raise a spec/plan decision before weakening the acceptance criterion.
 
-- [ ] T031 [P] [US4] Implement unit tests for liveness and readiness API behavior.
+- [X] T031 [P] [US4] Implement unit tests for liveness and readiness API behavior.
   - **Target**: `backend/tests/unit/test_health_api.py`
   - **Requirement**: FR-009, FR-010, FR-018, SC-002
   - **Dependencies**: T014, T026, T029, T030
@@ -428,7 +428,7 @@
     5. Verifies response payloads match `health-api.json`.
     6. Is marked `unit` and runs in the default verification command.
 
-- [ ] T032 [P] [US4] Implement readiness timeout, saturation, disconnect, and recovery integration tests.
+- [X] T032 [P] [US4] Implement readiness timeout, saturation, disconnect, and recovery integration tests.
   - **Target**: `backend/tests/integration/test_health_safety.py`
   - **Requirement**: FR-010, FR-018, NFR-004, SC-003
   - **Dependencies**: T014, T027, T028, T030
@@ -443,7 +443,7 @@
     8. Confirms no credentials or raw exception details appear in response bodies or logs.
     9. Is marked `integration`.
 
-- [ ] T033 [P] [US4] Implement opt-in readiness latency benchmark.
+- [X] T033 [P] [US4] Implement opt-in readiness latency benchmark.
   - **Target**: `backend/tests/integration/test_health_bench.py`
   - **Requirement**: FR-010, FR-018, NFR-004, SC-003
   - **Dependencies**: T014, T030
@@ -455,7 +455,7 @@
     5. Asserts local warm-pool P95 `<25ms` and records environment/runtime details with the result.
     6. Does not claim that a benchmark on one machine guarantees the same latency in production.
 
-- [ ] T034 [P] [US4] Implement typed frontend health models and API service.
+- [X] T034 [P] [US4] Implement typed frontend health models and API service.
   - **Target**: `frontend/src/app/core/models/health.model.ts`, `frontend/src/app/core/services/health.service.ts`
   - **Requirement**: FR-013
   - **Dependencies**: T004, T018
@@ -465,7 +465,7 @@
     3. Exposes a typed readiness request using an Observable or a Signal-based state wrapper consistent with the frontend architecture.
     4. Represents loading, healthy, and unhealthy/error states without using `any`.
 
-- [ ] T035 [P] [US4] Implement the standalone health dashboard widget.
+- [X] T035 [P] [US4] Implement the standalone health dashboard widget.
   - **Target**: `frontend/src/app/features/health-dashboard/health-dashboard.component.ts`, `frontend/src/app/features/health-dashboard/health-dashboard.component.html`, `frontend/src/app/features/health-dashboard/health-dashboard.component.scss`
   - **Requirement**: FR-013
   - **Dependencies**: T034
@@ -476,7 +476,7 @@
     4. Contains no catalog or other deferred business functionality.
     5. Uses direction-aware CSS logical properties.
 
-- [ ] T036 [P] [US4] Implement Vitest tests for frontend health service and dashboard.
+- [X] T036 [P] [US4] Implement Vitest tests for frontend health service and dashboard.
   - **Target**: `frontend/src/app/core/services/health.service.spec.ts`, `frontend/src/app/features/health-dashboard/health-dashboard.component.spec.ts`
   - **Requirement**: FR-013, FR-020, SC-002
   - **Dependencies**: T015, T034, T035
@@ -491,7 +491,7 @@
 
 **Goal**: Establish repeatable offline linting, formatting, type-checking, and test commands.
 
-- [ ] T037 [P] [US5] Configure Ruff and Mypy quality rules.
+- [X] T037 [P] [US5] Configure Ruff and Mypy quality rules.
   - **Target**: `backend/pyproject.toml`
   - **Requirement**: FR-019
   - **Dependencies**: T003
@@ -501,7 +501,7 @@
     3. Mypy runs in strict mode with untyped definitions disallowed.
     4. Configuration is compatible with the locked Python/tool versions and is exercised by the verification script.
 
-- [ ] T038 [P] [US5] Configure strict Angular ESLint rules.
+- [X] T038 [P] [US5] Configure strict Angular ESLint rules.
   - **Target**: `frontend/eslint.config.js`
   - **Requirement**: FR-020
   - **Dependencies**: T004
@@ -511,7 +511,7 @@
     3. Prohibits explicit `any` unless a narrowly documented exception is approved.
     4. Lint command runs without network access after dependencies are installed.
 
-- [ ] T039 [US5] Implement the root PowerShell verification script.
+- [X] T039 [US5] Implement the root PowerShell verification script.
   - **Target**: `scripts/verify.ps1`
   - **Requirement**: FR-019, FR-020, SC-002
   - **Dependencies**: T014, T015, T031, T036, T037, T038
@@ -530,7 +530,7 @@
     6. Does not install packages, contact public registries, or download assets during verification.
     7. Prints the command being run and a concise success/failure summary.
 
-- [ ] T040 [US5] Implement the frontend application shell and direction service.
+- [X] T040 [US5] Implement the frontend application shell and direction service.
   - **Target**: `frontend/src/app/layout/shell.component.ts`, `frontend/src/app/layout/shell.component.html`, `frontend/src/app/layout/shell.component.scss`, `frontend/src/app/core/services/direction.service.ts`
   - **Requirement**: FR-012, FR-013, FR-017
   - **Dependencies**: T016, T018
@@ -542,7 +542,7 @@
     5. Layout uses CSS logical properties and works in both directions.
     6. No catalog navigation or business screens are introduced.
 
-- [ ] T041 [P] [US5] Implement Vitest tests for the shell and direction service.
+- [X] T041 [P] [US5] Implement Vitest tests for the shell and direction service.
   - **Target**: `frontend/src/app/layout/shell.component.spec.ts`, `frontend/src/app/core/services/direction.service.spec.ts`
   - **Requirement**: FR-017, FR-020, SC-002
   - **Dependencies**: T015, T040
@@ -558,7 +558,7 @@
 
 **Goal**: Document local onboarding and produce a complete offline deployment package, including images and build dependencies/caches.
 
-- [ ] T042 [P] [US6] Write the Windows hybrid developer setup guide.
+- [X] T042 [P] [US6] Write the Windows hybrid developer setup guide.
   - **Target**: `docs/dev-setup.md`
   - **Requirement**: FR-015, FR-016, FR-021, SC-001
   - **Dependencies**: T001, T017, T018
@@ -571,7 +571,7 @@
     6. Clearly distinguishes local development credentials from production secret management.
     7. A clean-machine rehearsal records whether the `<15-minute` SC-001 target is met; do not claim success without a timed rehearsal.
 
-- [ ] T043 [P] [US6] Write the root project overview and architecture guide.
+- [X] T043 [P] [US6] Write the root project overview and architecture guide.
   - **Target**: `README.md`
   - **Requirement**: FR-021
   - **Dependencies**: T001
@@ -581,7 +581,7 @@
     3. Documents the on-premises/offline constraint and the boundary between this foundation feature and deferred catalog capabilities.
     4. Does not duplicate detailed setup instructions inconsistently with `docs/dev-setup.md`.
 
-- [ ] T044 [P] [US6] Create the production backend multi-stage Dockerfile.
+- [X] T044 [P] [US6] Create the production backend multi-stage Dockerfile.
   - **Target**: `backend/Dockerfile`, `.dockerignore` if required
   - **Requirement**: FR-016, NFR-001
   - **Dependencies**: T003, T006
@@ -595,7 +595,7 @@
     7. Does not include compilers or build-only tools in the final runtime stage unless a specific runtime dependency requires them.
     8. The build can be completed from the documented local/internal dependency sources without public internet.
 
-- [ ] T045 [P] [US6] Create the production frontend multi-stage Dockerfile and Nginx configuration.
+- [X] T045 [P] [US6] Create the production frontend multi-stage Dockerfile and Nginx configuration.
   - **Target**: `frontend/Dockerfile`, `frontend/nginx.conf`, `.dockerignore` if required
   - **Requirement**: NFR-001
   - **Dependencies**: T004, T018
@@ -607,7 +607,7 @@
     5. Nginx supports SPA route fallback and approved security headers.
     6. Fonts, icons, and application assets are served locally; no public CDN is required.
 
-- [ ] T046 [US6] Create production Docker Compose orchestration.
+- [X] T046 [US6] Create production Docker Compose orchestration.
   - **Target**: `infrastructure/docker-compose.prod.yml`
   - **Requirement**: NFR-001
   - **Dependencies**: T044, T045
@@ -620,7 +620,7 @@
     6. The Compose file references the exact backend/frontend image names and tags produced by the build process.
     7. No public internet dependency is required at container startup.
 
-- [ ] T047 [US6] Create a complete air-gap packaging script for images and dependency assets.
+- [X] T047 [US6] Create a complete air-gap packaging script for images and dependency assets.
   - **Target**: `scripts/package-airgap.ps1`, packaging manifest/documentation under `infrastructure/` or `docs/`
   - **Requirement**: NFR-001
   - **Dependencies**: T003, T004, T044, T045, T046
@@ -642,7 +642,7 @@
 
 **Purpose**: Rehearse onboarding, prove offline installation/build/test paths, verify air-gapped deployment, and audit scope boundaries.
 
-- [ ] T048 Execute a timed clean-machine developer onboarding rehearsal.
+- [X] T048 Execute a timed clean-machine developer onboarding rehearsal.
   - **Target**: `docs/dev-setup.md`, `docs/onboarding-verification.md` (if a report is created)
   - **Requirement**: SC-001
   - **Dependencies**: T005, T017, T018, T019, T021, T039, T042
@@ -653,7 +653,7 @@
     4. Records start/end time, environment, deviations, and outcome.
     5. SC-001 is marked met only if the full rehearsal completes in `<15 minutes`; otherwise the measured result and remediation are recorded.
 
-- [ ] T049 Verify actual offline dependency installation, build, lint, and test execution.
+- [X] T049 Verify actual offline dependency installation, build, lint, and test execution.
   - **Target**: `scripts/verify.ps1`, `docs/offline-verification.md` (if a report is created)
   - **Requirement**: NFR-001, SC-002
   - **Dependencies**: T003, T004, T039, T047, T048
@@ -666,7 +666,7 @@
     6. Records the exact commands, package/cache identifiers, and outcome.
     7. A lockfile's existence alone is not accepted as proof of offline readiness.
 
-- [ ] T050 Verify air-gapped image import and production startup.
+- [X] T050 Verify air-gapped image import and production startup.
   - **Target**: `scripts/package-airgap.ps1`, `infrastructure/docker-compose.prod.yml`, `docs/offline-verification.md` (if a report is created)
   - **Requirement**: NFR-001
   - **Dependencies**: T046, T047
@@ -680,7 +680,7 @@
     7. Confirms production secrets are provided externally and are absent from the package.
     8. Records the exact Docker/Compose versions and test result.
 
-- [ ] T051 Perform a clean-slate scope and architectural boundary audit.
+- [X] T051 Perform a clean-slate scope and architectural boundary audit.
   - **Target**: `backend/app/`, `frontend/src/`, repository dependency/configuration files
   - **Requirement**: NFR-006, NFR-003
   - **Dependencies**: T009, T010, T013, T022, T039
