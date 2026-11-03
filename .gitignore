@@ -1,0 +1,72 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Hermes & Agent state
+.hermes/
+
+# Spec Kit per-machine state
+.specify/feature.json
+.specify/extensions/*/local-config.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+wheelhouse/
+
+# Node / Angular / Frontend
+node_modules/
+.npm/
+.npm-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.angular/
+.vite/
+
+# Testing & Quality
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS artifacts
+Thumbs.db
+Desktop.ini
+.DS_Store

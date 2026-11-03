@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CeleryBaselineHealthCheckTask",
+  "description": "JSON schema contract for the baseline asynchronous Celery health verification task.",
+  "type": "object",
+  "definitions": {
+    "TaskDispatchPayload": {
+      "type": "object",
+      "required": ["ping_id", "sent_at"],
+      "properties": {
+        "ping_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique task invocation UUID"
+        },
+        "sent_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp of task creation"
+        }
+      }
+    },
+    "TaskResultPayload": {
+      "type": "object",
+      "required": ["ping_id", "status", "worker_name", "completed_at", "duration_ms"],
+      "properties": {
+        "ping_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Echoed invocation UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pong"],
+          "description": "Execution acknowledgment status"
+        },
+        "worker_name": {
+          "type": "string",
+          "description": "Identifier of the Celery worker that consumed the task"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp when execution finished"
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Execution duration in milliseconds"
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,7 @@
+{
+  "ai": "agy",
+  "ai_skills": true,
+  "integration": "agy",
+  "script": "ps",
+  "speckit_version": "1.0.13.dev0"
+}
