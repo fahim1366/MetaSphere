@@ -13,7 +13,9 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 os.environ["APP_ENV"] = "test"
+os.environ.pop("DATABASE_URL", None)
 settings.APP_ENV = "test"
+settings.DATABASE_URL = None
 
 # In-memory SQLite engine using StaticPool for isolated unit testing
 TEST_SQLITE_URL = "sqlite:///:memory:"

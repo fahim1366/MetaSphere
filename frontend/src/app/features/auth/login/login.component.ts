@@ -15,8 +15,8 @@ import { AuthService } from "../../../core/services/auth.service";
           <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 text-blue-600 mb-3">
             <i class="pi pi-lock text-xl" aria-hidden="true"></i>
           </div>
-          <h2 class="text-2xl font-bold text-slate-800">Sign in to MetaSphere</h2>
-          <p class="text-xs text-slate-500 mt-1">Enterprise Data Catalog & Metadata Governance</p>
+          <h2 class="text-2xl font-bold text-slate-800">ورود به سامانه متاسفر</h2>
+          <p class="text-xs text-slate-500 mt-1">کاتالوگ جامع دادههای سازمانی و حاکمیت متادیتا</p>
         </div>
 
         <div *ngIf="errorMessage()" class="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
@@ -25,25 +25,25 @@ import { AuthService } from "../../../core/services/auth.service";
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <div class="mb-4">
-            <label for="username" class="block text-xs font-semibold text-slate-700 mb-1">Username</label>
+            <label for="username" class="block text-xs font-semibold text-slate-700 mb-1">نام کاربری</label>
             <input
               id="username"
               type="text"
               formControlName="username"
-              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your username"
+              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dir-ltr text-end"
+              placeholder="نام کاربری خود را وارد کنید"
               autocomplete="username"
             />
           </div>
 
           <div class="mb-6">
-            <label for="password" class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+            <label for="password" class="block text-xs font-semibold text-slate-700 mb-1">کلمه عبور</label>
             <input
               id="password"
               type="password"
               formControlName="password"
-              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
+              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dir-ltr text-end"
+              placeholder="کلمه عبور خود را وارد کنید"
               autocomplete="current-password"
             />
           </div>
@@ -51,10 +51,10 @@ import { AuthService } from "../../../core/services/auth.service";
           <button
             type="submit"
             [disabled]="loginForm.invalid || loading()"
-            class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-sm transition-colors disabled:opacity-50"
+            class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
           >
-            <span *ngIf="!loading()">Sign in</span>
-            <span *ngIf="loading()">Signing in...</span>
+            <span *ngIf="!loading()">ورود به حساب کاربری</span>
+            <span *ngIf="loading()">در حال احراز هویت...</span>
           </button>
         </form>
       </div>
@@ -95,7 +95,7 @@ export class LoginComponent {
       },
       error: (err: { error?: { detail?: string } }) => {
         this.loading.set(false);
-        this.errorMessage.set(err.error?.detail || "Invalid username or password");
+        this.errorMessage.set(err.error?.detail || "نام کاربری یا کلمه عبور واردشده اشتباه است.");
       },
     });
   }

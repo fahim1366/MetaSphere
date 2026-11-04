@@ -80,7 +80,7 @@ class ApplicationSettings(BaseSettings):
 
     @property
     def sqlalchemy_database_url(self) -> str:
-        if self.DATABASE_URL:
+        if self.DATABASE_URL and self.APP_ENV != "test":
             return self.DATABASE_URL
         pwd = self.POSTGRES_PASSWORD.get_secret_value()
         return f"postgresql+psycopg2://{self.POSTGRES_USER}:{pwd}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

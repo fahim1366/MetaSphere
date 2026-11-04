@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { Role } from "../models/user.model";
+import { CreateRolePayload, Role, RoleUser } from "../models/user.model";
 
 export interface Permission {
   id: string;
@@ -25,5 +25,13 @@ export class RoleService {
 
   getPermissions(): Observable<Permission[]> {
     return this.http.get<Permission[]>(`${this.baseUrl}/permissions`);
+  }
+
+  createRole(payload: CreateRolePayload): Observable<Role> {
+    return this.http.post<Role>(this.baseUrl, payload);
+  }
+
+  getRoleUsers(roleId: string): Observable<RoleUser[]> {
+    return this.http.get<RoleUser[]>(`${this.baseUrl}/${roleId}/users`);
   }
 }

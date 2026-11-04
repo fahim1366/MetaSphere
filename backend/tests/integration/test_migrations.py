@@ -18,6 +18,17 @@ def test_alembic_upgrade_and_downgrade_idempotency() -> None:
             "Start containers with: docker compose -f infrastructure/docker-compose.yml up -d"
         )
 
+    # Verify credentials and database reachability before running migrations
+    try:
+        probe_engine = create_engine(
+            settings.sqlalchemy_database_url,
+            connect_args={"connect_timeout": 1},
+        )
+        with probe_engine.connect():
+            pass
+    except Exception as exc:
+        pytest.skip(f"PostgreSQL credentials/database connection rejected: {exc}")
+
     # Isolated migration test database
     backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     alembic_cfg = Config(os.path.join(backend_dir, "alembic.ini"))

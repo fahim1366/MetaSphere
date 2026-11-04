@@ -4,8 +4,8 @@
       <a routerLink="/" class="flex items-center gap-2.5 text-blue-600 no-underline hover:opacity-90 transition-opacity">
         <i class="pi pi-database text-2xl" aria-hidden="true"></i>
         <div class="flex flex-col">
-          <span class="text-base font-bold text-slate-800 leading-tight">MetaSphere</span>
-          <span class="text-[10px] text-slate-400 font-medium">Enterprise Data Catalog</span>
+          <span class="text-base font-bold text-slate-800 leading-tight">متاسفر</span>
+          <span class="text-[10px] text-slate-400 font-medium">کاتالوگ جامع دادههای سازمانی</span>
         </div>
       </a>
 
@@ -18,7 +18,7 @@
           class="px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-1.5 no-underline"
         >
           <i class="pi pi-chart-bar text-xs"></i>
-          <span>Health</span>
+          <span>وضعیت سلامت</span>
         </a>
 
         <a
@@ -28,7 +28,7 @@
           class="px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-1.5 no-underline"
         >
           <i class="pi pi-users text-xs"></i>
-          <span>Users</span>
+          <span>مدیریت کاربران</span>
         </a>
 
         <a
@@ -38,7 +38,7 @@
           class="px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-1.5 no-underline"
         >
           <i class="pi pi-shield text-xs"></i>
-          <span>Roles</span>
+          <span>نقشها و دسترسیها</span>
         </a>
 
         <a
@@ -48,7 +48,7 @@
           class="px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-1.5 no-underline"
         >
           <i class="pi pi-history text-xs"></i>
-          <span>Audit Logs</span>
+          <span>لاگهای امنیتی</span>
         </a>
       </nav>
     </div>
@@ -59,7 +59,7 @@
         type="button"
         (click)="directionService.toggleDirection()"
         class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
-        [attr.aria-label]="directionService.currentDirection() === 'rtl' ? 'Switch to English (LTR)' : 'تغییر به فارسی (RTL)'"
+        [attr.aria-label]="directionService.currentDirection() === 'rtl' ? 'تغییر به انگلیسی (LTR)' : 'تغییر به فارسی (RTL)'"
       >
         {{ directionService.currentDirection() === 'rtl' ? 'EN' : 'فارسی' }}
       </button>
@@ -77,7 +77,7 @@
         </div>
         <button
           (click)="logout()"
-          title="Sign out"
+          title="خروج از حساب کاربری"
           class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
         >
           <i class="pi pi-sign-out text-sm"></i>
@@ -89,7 +89,7 @@
           routerLink="/login"
           class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors no-underline cursor-pointer"
         >
-          Sign in
+          ورود به سامانه
         </a>
       </ng-template>
     </div>
@@ -98,6 +98,6 @@
     <router-outlet></router-outlet>
   </main>
   <footer class="bg-white border-t border-slate-200 px-6 py-3 text-xs text-slate-500 text-center">
-    MetaSphere Enterprise Data Catalog &copy; 2026 &mdash; Air-gapped On-Premises Edition
+    سامانه کاتالوگ جامع داده سازمانی متاسفر &copy; ۲۰۲۶ &mdash; نسخه درونسازمانی Air-gapped
   </footer>
 </div>

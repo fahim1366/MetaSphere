@@ -1,18 +1,18 @@
 <div class="health-dashboard max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-sm border border-slate-200">
   <div class="flex items-center justify-between pb-5 border-b border-slate-100">
     <div>
-      <h2 class="text-lg font-bold text-slate-800">System Observability & Dependency Probes</h2>
-      <p class="text-xs text-slate-500 mt-1">Real-time readiness status for central PostgreSQL and Redis brokers</p>
+      <h2 class="text-lg font-bold text-slate-800">رصد پایش سلامت و سرویسهای زیرساختی</h2>
+      <p class="text-xs text-slate-500 mt-1">وضعیت ارتباط بلادرنگ با پایگاه داده متمرکز و سرویسهای پسزمینه</p>
     </div>
     <button
       type="button"
       (click)="refresh()"
       [disabled]="healthService.state().loading"
-      class="inline-flex items-center space-x-2 rtl:space-x-reverse px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
-      aria-label="Refresh readiness status"
+      class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer"
+      aria-label="بروزرسانی وضعیت سلامت"
     >
       <i class="pi pi-refresh" [class.pi-spin]="healthService.state().loading" aria-hidden="true"></i>
-      <span>Refresh</span>
+      <span>بروزرسانی</span>
     </button>
   </div>
 
@@ -23,7 +23,7 @@
          'bg-rose-50 border border-rose-200 text-rose-800': !healthService.state().ready && !healthService.state().loading,
          'bg-slate-50 border border-slate-200 text-slate-700': healthService.state().loading
        }">
-    <div class="flex items-center space-x-3 rtl:space-x-reverse">
+    <div class="flex items-center gap-3">
       <i class="pi text-xl"
          [ngClass]="{
            'pi-check-circle text-emerald-600': healthService.state().ready,
@@ -34,19 +34,19 @@
       </i>
       <div>
         <p class="text-sm font-semibold">
-          Overall Status:
-          <span class="uppercase tracking-wider font-bold">
-            {{ healthService.state().loading ? 'Checking...' : (healthService.state().ready ? 'Ready' : 'Unhealthy') }}
+          وضعیت کلی سامانه:
+          <span class="tracking-wider font-bold">
+            {{ healthService.state().loading ? 'در حال بررسی...' : (healthService.state().ready ? 'آماده به کار (سالم)' : 'ناپایدار / در دسترس نبودن برخی سرویسها') }}
           </span>
         </p>
         <p class="text-xs opacity-75 mt-0.5" *ngIf="healthService.state().lastChecked">
-          Last checked: {{ healthService.state().lastChecked | date:'mediumTime' }}
+          آخرین بررسی: {{ healthService.state().lastChecked | date:'HH:mm:ss' }}
         </p>
       </div>
     </div>
     <span class="text-xs px-2.5 py-1 rounded-full font-medium"
           [ngClass]="healthService.state().ready ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'">
-      {{ healthService.state().ready ? '200 OK' : '503 Unavailable' }}
+      {{ healthService.state().ready ? '۲۰۰ سالم' : '۵۰۳ عدم دسترسی' }}
     </span>
   </div>
 
@@ -58,17 +58,17 @@
         <span class="text-sm font-semibold capitalize text-slate-700">{{ key }}</span>
         <span class="text-xs px-2 py-0.5 rounded-full font-medium"
               [ngClass]="healthService.state().data?.components?.[key]?.status === 'connected' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'">
-          {{ healthService.state().data?.components?.[key]?.status }}
+          {{ healthService.state().data?.components?.[key]?.status === 'connected' ? 'متصل' : 'قطع ارتباط' }}
         </span>
       </div>
       <div class="mt-3 text-xs text-slate-500 flex justify-between items-center">
-        <span>Latency:</span>
-        <span class="font-mono text-slate-700">
-          {{ healthService.state().data?.components?.[key]?.latency_ms ? (healthService.state().data?.components?.[key]?.latency_ms + ' ms') : 'N/A' }}
+        <span>میزان تاخیر (Latency):</span>
+        <span class="font-mono text-slate-700 dir-ltr text-end">
+          {{ healthService.state().data?.components?.[key]?.latency_ms ? (healthService.state().data?.components?.[key]?.latency_ms + ' ms') : '—' }}
         </span>
       </div>
       <div *ngIf="healthService.state().data?.components?.[key]?.error" class="mt-2 text-xs text-rose-600 font-medium">
-        Error: {{ healthService.state().data?.components?.[key]?.error }}
+        خطا: {{ healthService.state().data?.components?.[key]?.error }}
       </div>
     </div>
   </div>
