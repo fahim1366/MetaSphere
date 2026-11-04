@@ -16,6 +16,7 @@ def get_redis_client(
         db=cfg.REDIS_DB,
         socket_connect_timeout=cfg.REDIS_CONNECT_TIMEOUT,
         socket_timeout=cfg.REDIS_SOCKET_TIMEOUT,
+        retry=None,
         decode_responses=True,
     )
 

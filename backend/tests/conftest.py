@@ -1,14 +1,19 @@
+import os
 from collections.abc import Generator
 
+import app.models  # noqa: F401
 import pytest
 from app.api.deps import get_db
-from app.core.config import ApplicationSettings
+from app.core.config import ApplicationSettings, settings
 from app.db.base import Base
 from app.main import app
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
+
+os.environ["APP_ENV"] = "test"
+settings.APP_ENV = "test"
 
 # In-memory SQLite engine using StaticPool for isolated unit testing
 TEST_SQLITE_URL = "sqlite:///:memory:"
@@ -41,6 +46,14 @@ def db_session() -> Generator[Session, None, None]:
     session.close()
     transaction.rollback()
     connection.close()
+
+
+@pytest.fixture(autouse=True)
+def mock_redis_for_unit_tests(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Mock Redis client calls during unit tests to prevent network connection attempts."""
+    monkeypatch.setattr("app.core.rate_limit.is_login_rate_limited", lambda identifier: False)
+    monkeypatch.setattr("app.core.rate_limit.record_failed_login_attempt", lambda identifier: None)
+    monkeypatch.setattr("app.core.rate_limit.clear_failed_login_attempts", lambda identifier: None)
 
 
 @pytest.fixture

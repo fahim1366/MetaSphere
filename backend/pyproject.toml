@@ -19,6 +19,7 @@ dependencies = [
     "celery>=5.4.0",
     "redis>=5.0.0",
     "httpx>=0.27.0",
+    "argon2-cffi>=23.1.0",
 ]
 
 [project.optional-dependencies]
@@ -59,7 +60,7 @@ select = [
     "C4",  # flake8-comprehensions
     "SIM", # flake8-simplify
 ]
-ignore = ["E501"] # line length handled by formatter
+ignore = ["E501", "B008"] # line length handled by formatter, B008 allowed for FastAPI Depends
 
 [tool.ruff.format]
 quote-style = "double"

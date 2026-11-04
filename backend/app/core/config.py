@@ -50,6 +50,15 @@ class ApplicationSettings(BaseSettings):
     # Logging
     LOG_LEVEL: str = "INFO"
 
+    # Authentication & Session Security
+    SESSION_EXPIRE_MINUTES: int = 1440  # 24 hours
+    SESSION_SLIDING_ACTIVITY_MINUTES: int = 60
+    AUTH_MAX_FAILED_ATTEMPTS: int = 5
+    AUTH_LOCKOUT_MINUTES: int = 15
+    ARGON2_TIME_COST: int = 3
+    ARGON2_MEMORY_COST: int = 65536  # 64 MiB
+    ARGON2_PARALLELISM: int = 4
+
     @property
     def effective_db_pool_size(self) -> int:
         if self.DB_POOL_SIZE is not None:

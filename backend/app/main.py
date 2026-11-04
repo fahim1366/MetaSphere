@@ -3,6 +3,10 @@ import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+
 from app.api.api_router import api_router
 from app.api.routes.health import health_router
 from app.core.config import settings
@@ -10,9 +14,6 @@ from app.core.exceptions import global_exception_handler
 from app.core.health_probe import admission_controller
 from app.core.logging import correlation_id_ctx, setup_logging
 from app.db.session import engine
-from fastapi import FastAPI, Request, Response
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 # Initialize structured logging with secret masking filter
 setup_logging(settings.LOG_LEVEL)
