@@ -9,6 +9,13 @@ from app.core.config import ApplicationSettings, settings
 
 def get_engine_args(app_settings: ApplicationSettings, role: str | None = None) -> dict[str, Any]:
     """Calculate process-safe engine configuration parameters."""
+    effective_url = app_settings.sqlalchemy_database_url
+    if "sqlite" in effective_url:
+        return {
+            "connect_args": {"check_same_thread": False},
+            "echo": False,
+        }
+
     effective_role = role or app_settings.PROCESS_ROLE
     pool_size = app_settings.DB_POOL_SIZE
     if pool_size is None:

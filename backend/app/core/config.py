@@ -27,6 +27,9 @@ class ApplicationSettings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: SecretStr = SecretStr("postgres_local_dev")
 
+    # Database override URL (supports sqlite for instant local testing)
+    DATABASE_URL: str | None = None
+
     # Connection pool configuration (role-specific defaults)
     PROCESS_ROLE: Literal["api", "celery", "migration", "script"] = "api"
     DB_POOL_SIZE: int | None = None
@@ -77,6 +80,8 @@ class ApplicationSettings(BaseSettings):
 
     @property
     def sqlalchemy_database_url(self) -> str:
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         pwd = self.POSTGRES_PASSWORD.get_secret_value()
         return f"postgresql+psycopg2://{self.POSTGRES_USER}:{pwd}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
