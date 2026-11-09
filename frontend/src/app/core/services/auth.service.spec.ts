@@ -69,4 +69,42 @@ describe("AuthService", () => {
       expect(service.currentUser()).toBeNull();
     });
   });
+
+  describe("session restore", () => {
+    const user = {
+      id: "u1",
+      username: "alice",
+      email: "a@e.com",
+      full_name: null,
+      is_active: true,
+      is_superuser: false,
+      roles: [],
+      permissions: [],
+    };
+
+    function seed(expiresAt: string | null): void {
+      localStorage.setItem("metasphere_token", "tok");
+      localStorage.setItem("metasphere_user", JSON.stringify(user));
+      if (expiresAt) localStorage.setItem("metasphere_expires_at", expiresAt);
+    }
+
+    it("restores a stored session that has not expired", () => {
+      seed(new Date(Date.now() + 3_600_000).toISOString());
+      const restored = new AuthService(mockHttpClient as unknown as HttpClient);
+      expect(restored.isAuthenticated()).toBe(true);
+    });
+
+    it("discards an expired stored session", () => {
+      seed(new Date(Date.now() - 1_000).toISOString());
+      const restored = new AuthService(mockHttpClient as unknown as HttpClient);
+      expect(restored.isAuthenticated()).toBe(false);
+      expect(localStorage.getItem("metasphere_token")).toBeNull();
+    });
+
+    it("discards a stored session with no recorded expiry", () => {
+      seed(null);
+      const restored = new AuthService(mockHttpClient as unknown as HttpClient);
+      expect(restored.isAuthenticated()).toBe(false);
+    });
+  });
 });

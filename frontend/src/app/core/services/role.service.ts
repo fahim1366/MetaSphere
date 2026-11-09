@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { API_BASE } from "../api.config";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { CreateRolePayload, Role, RoleUser } from "../models/user.model";
@@ -15,7 +16,7 @@ export interface Permission {
   providedIn: "root",
 })
 export class RoleService {
-  private baseUrl = "http://localhost:8000/api/v1/roles";
+  private baseUrl = `${API_BASE}/roles`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,4 +1,5 @@
 import { Injectable, computed, signal } from "@angular/core";
+import { API_BASE } from "../api.config";
 import { HttpClient } from "@angular/common/http";
 import { Observable, tap } from "rxjs";
 import { LoginPayload, TokenResponse, User } from "../models/user.model";
@@ -7,7 +8,7 @@ import { LoginPayload, TokenResponse, User } from "../models/user.model";
   providedIn: "root",
 })
 export class AuthService {
-  private baseUrl = "http://localhost:8000/api/v1/auth";
+  private baseUrl = `${API_BASE}/auth`;
 
   currentUser = signal<User | null>(null);
   token = signal<string | null>(null);
@@ -16,7 +17,14 @@ export class AuthService {
   constructor(private http: HttpClient) {
     const savedToken = localStorage.getItem("metasphere_token");
     const savedUser = localStorage.getItem("metasphere_user");
+    const savedExpiry = localStorage.getItem("metasphere_expires_at");
     if (savedToken && savedUser) {
+      const expiresAt = savedExpiry ? Date.parse(savedExpiry) : NaN;
+      if (Number.isNaN(expiresAt) || expiresAt <= Date.now()) {
+        // Unknown or past expiry: do not resurrect a dead session.
+        this.clearSession();
+        return;
+      }
       try {
         this.token.set(savedToken);
         this.currentUser.set(JSON.parse(savedUser));
@@ -33,6 +41,7 @@ export class AuthService {
         this.currentUser.set(res.user);
         localStorage.setItem("metasphere_token", res.access_token);
         localStorage.setItem("metasphere_user", JSON.stringify(res.user));
+        localStorage.setItem("metasphere_expires_at", res.expires_at);
       })
     );
   }
@@ -50,6 +59,7 @@ export class AuthService {
     this.currentUser.set(null);
     localStorage.removeItem("metasphere_token");
     localStorage.removeItem("metasphere_user");
+    localStorage.removeItem("metasphere_expires_at");
   }
 
   hasPermission(permission: string): boolean {

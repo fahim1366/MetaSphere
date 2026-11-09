@@ -1,4 +1,5 @@
 import { Injectable, signal } from "@angular/core";
+import { HEALTH_BASE } from "../api.config";
 import { HttpClient } from "@angular/common/http";
 import { Observable, catchError, of, tap } from "rxjs";
 import {
@@ -11,7 +12,7 @@ import {
   providedIn: "root",
 })
 export class HealthService {
-  private baseUrl = "http://localhost:8000";
+  private baseUrl = HEALTH_BASE;
 
   constructor(private http: HttpClient) {}
 
