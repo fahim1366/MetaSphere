@@ -1,11 +1,11 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_permissions
-from app.models.role import AppPermission, AppRole
+from app.models.role import AppPermission, AppRole, AppUserRole
 from app.models.user import AppUser
 from app.schemas.role import PermissionRead, RoleCreate, RoleRead, RoleUserRead
 from app.services.audit_service import log_security_event
@@ -26,6 +26,10 @@ def list_roles(
 ) -> list[RoleRead]:
     stmt = select(AppRole).order_by(AppRole.name.asc())
     roles = db.execute(stmt).scalars().all()
+    count_rows = db.execute(
+        select(AppUserRole.role_id, func.count()).group_by(AppUserRole.role_id)
+    ).all()
+    counts = {row[0]: int(row[1]) for row in count_rows}
     return [
         RoleRead(
             id=r.id,
@@ -34,7 +38,7 @@ def list_roles(
             description=r.description,
             is_system=r.is_system,
             permissions=[p.code for p in r.permissions],
-            assigned_user_count=len(r.users),
+            assigned_user_count=counts.get(r.id, 0),
         )
         for r in roles
     ]
@@ -61,10 +65,17 @@ def create_role(
         )
 
     # Fetch permissions
+    requested = list(dict.fromkeys(req.permission_codes))
     perms: list[AppPermission] = []
-    if req.permission_codes:
-        stmt = select(AppPermission).where(AppPermission.code.in_(req.permission_codes))
+    if requested:
+        stmt = select(AppPermission).where(AppPermission.code.in_(requested))
         perms = list(db.execute(stmt).scalars().all())
+        unknown = sorted(set(requested) - {p.code for p in perms})
+        if unknown:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown permission code(s): {', '.join(unknown)}",
+            )
 
     new_role = AppRole(
         id=uuid.uuid4(),
@@ -75,8 +86,7 @@ def create_role(
         permissions=perms,
     )
     db.add(new_role)
-    db.commit()
-    db.refresh(new_role)
+    db.flush()
 
     log_security_event(
         db=db,
@@ -85,7 +95,10 @@ def create_role(
         actor_id=current_admin.id,
         target_resource=new_role.code,
         details={"permissions": [p.code for p in perms]},
+        commit=False,
     )
+    db.commit()
+    db.refresh(new_role)
 
     return RoleRead(
         id=new_role.id,

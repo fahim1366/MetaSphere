@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, func, literal_column
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -16,6 +16,11 @@ if TYPE_CHECKING:
 
 class AppUser(Base):
     __tablename__ = "app_user"
+    __table_args__ = (
+        # Usernames and e-mails are looked up case-insensitively; enforce that in the DB too.
+        Index("uq_app_user_username_lower", func.lower(literal_column("username")), unique=True),
+        Index("uq_app_user_email_lower", func.lower(literal_column("email")), unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)

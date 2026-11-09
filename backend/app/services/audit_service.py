@@ -32,8 +32,13 @@ def log_security_event(
     target_resource: str | None = None,
     ip_address: str | None = None,
     details: dict[str, Any] | None = None,
+    commit: bool = True,
 ) -> AppSecurityAudit:
-    """Record an immutable security audit event in the database."""
+    """Record an immutable security audit event.
+
+    With ``commit=False`` the entry joins the caller's transaction so that a business change
+    and its audit record are persisted (or rolled back) atomically.
+    """
     safe_details = sanitize_audit_details(details)
 
     audit_entry = AppSecurityAudit(
@@ -46,6 +51,9 @@ def log_security_event(
         details=safe_details,
     )
     db.add(audit_entry)
-    db.commit()
-    db.refresh(audit_entry)
+    if commit:
+        db.commit()
+        db.refresh(audit_entry)
+    else:
+        db.flush()
     return audit_entry

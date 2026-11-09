@@ -7,7 +7,6 @@ from app.core.security import hash_password
 from app.models.role import AppRole
 from app.models.user import AppUser
 from app.repositories.user_repository import (
-    create_user,
     get_user_by_email,
     get_user_by_username,
 )
@@ -58,24 +57,28 @@ def create_new_user(
             detail=f"Email '{req.email}' is already in use",
         )
 
-    # Resolve roles
+    # Resolve roles; reject unknown codes instead of silently ignoring them
+    requested = list(dict.fromkeys(req.role_codes))
     roles: list[AppRole] = []
-    if req.role_codes:
-        stmt = select(AppRole).where(AppRole.code.in_(req.role_codes))
-        roles = list(db.execute(stmt).scalars().all())
+    if requested:
+        roles = list(db.execute(select(AppRole).where(AppRole.code.in_(requested))).scalars().all())
+        unknown = sorted(set(requested) - {r.code for r in roles})
+        if unknown:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown role code(s): {', '.join(unknown)}",
+            )
 
-    pwd_hash = hash_password(req.password.get_secret_value())
-    new_user = create_user(
-        db=db,
+    new_user = AppUser(
         username=req.username,
         email=req.email,
-        password_hash=pwd_hash,
+        password_hash=hash_password(req.password.get_secret_value()),
         full_name=req.full_name,
         is_active=True,
+        roles=roles,
     )
-    new_user.roles = roles
-    db.commit()
-    db.refresh(new_user)
+    db.add(new_user)
+    db.flush()  # assigns the primary key without committing
 
     log_security_event(
         db=db,
@@ -85,6 +88,9 @@ def create_new_user(
         actor_id=current_admin.id,
         target_resource=new_user.username,
         details={"roles": [r.code for r in roles]},
+        commit=False,
     )
+    db.commit()  # user, role links and audit entry land together
+    db.refresh(new_user)
 
     return build_user_read(new_user)

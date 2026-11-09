@@ -45,13 +45,17 @@ def setup_celery_logging(logger: logging.Logger, **kwargs: Any) -> None:
 
 @worker_process_init.connect
 def init_worker_db_pool(**kwargs: Any) -> None:
-    """Initialize process-safe database engine after worker fork with Celery pool budget."""
-    from app.db.session import create_db_engine
+    """Reset the database pool in each forked worker process.
 
-    # Dispose inherited connections and instantiate worker-local engine
-    create_db_engine(settings, role="celery")
+    Connections inherited from the parent process must never be shared across a fork.
+    ``dispose(close=False)`` abandons them in the child without closing the parent's sockets;
+    the pool then lazily opens fresh, process-local connections.
+    """
+    from app.db.session import engine
+
+    engine.dispose(close=False)
     logging.getLogger("celery.worker").info(
-        "Worker %s initialized database pool (size=%d, overflow=%d)",
+        "Worker %s reset database pool (size=%d, overflow=%d)",
         socket.gethostname(),
         settings.effective_db_pool_size,
         settings.effective_db_max_overflow,
