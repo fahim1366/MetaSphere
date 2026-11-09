@@ -53,6 +53,20 @@ Inside `/backend` with virtual environment active:
 alembic upgrade head
 ```
 
+### Step 4b: Seed the Initial Administrator
+Inside `/backend` with the virtual environment active:
+```bash
+# Provide the password yourself (recommended) ...
+SEED_ADMIN_PASSWORD='Choose-A-Strong-Passw0rd!' python scripts/seed_admin.py
+
+# ... or omit it and a random one-time password is generated and printed once.
+python scripts/seed_admin.py
+
+# Optional demo data (a "steward" user): SEED_DEMO_USERS=1 [SEED_STEWARD_PASSWORD=...]
+```
+No default or hard-coded passwords are used. In `APP_ENV=production` the script never calls
+`create_all`; the schema must come from `alembic upgrade head`.
+
 ### Step 5: Start Backend Development Server
 Inside `/backend`:
 ```bash
@@ -78,6 +92,11 @@ npm start
 ```
 Open `http://localhost:4200` in your browser. The application shell and live readiness dashboard will display.
 
+The SPA calls the API on the **same origin** (`/api/v1/...` and `/health/...`). During development
+`ng serve` forwards these paths to `http://localhost:8000` using `frontend/proxy.conf.json`; in
+production the nginx container does the same. Start the backend before the frontend, and change
+the proxy target only if your backend runs on a different port.
+
 ---
 
 ## 3. Automated Quality Verification
@@ -100,6 +119,8 @@ powershell -ExecutionPolicy Bypass -File scripts/verify.ps1 -RunBenchmark
 ---
 
 ## 4. Background Task Worker (Celery)
+
+(The production Compose file already runs the worker, the one-shot `migrate` job, the API and nginx.)
 
 To start the Celery background worker locally on Windows:
 ```bash

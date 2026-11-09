@@ -43,6 +43,24 @@ services:
           cpus: "1.0"
           memory: 1024M
 
+  migrate:
+    image: metasphere-backend:0.1.0
+    container_name: metasphere-prod-migrate
+    restart: "no"
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      PROCESS_ROLE: migration
+      DEBUG: "False"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-metasphere}
+      POSTGRES_USER: ${POSTGRES_USER:?error}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
+
   backend:
     image: metasphere-backend:0.1.0
     container_name: metasphere-prod-backend
@@ -52,8 +70,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       APP_ENV: production
+      PROCESS_ROLE: api
       DEBUG: "False"
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
@@ -62,15 +83,54 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost"]}
-    ports:
-      - "8000:8000"
+      # The SPA reaches the API through the nginx proxy (same origin), so CORS stays closed.
+      CORS_ORIGINS: ${CORS_ORIGINS:-[]}
+      # The backend has no published port (internal Compose network only), so it may trust the
+      # proxy's X-Forwarded-* headers for real client IPs (rate limiting, audit trail).
+      FORWARDED_ALLOW_IPS: "*"
+    expose:
+      - "8000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/ready"]
       interval: 10s
       timeout: 3s
       retries: 3
       start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+
+  worker:
+    image: metasphere-backend:0.1.0
+    container_name: metasphere-prod-worker
+    restart: always
+    command: ["celery", "-A", "app.jobs.celery_app.celery_app", "worker", "--loglevel=INFO"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      APP_ENV: production
+      PROCESS_ROLE: celery
+      DEBUG: "False"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-metasphere}
+      POSTGRES_USER: ${POSTGRES_USER:?error}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.jobs.celery_app.celery_app inspect ping -d celery@$$HOSTNAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     deploy:
       resources:
         limits:
