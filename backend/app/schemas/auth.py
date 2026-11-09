@@ -1,8 +1,9 @@
-import re
 import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
+
+from app.core.password_policy import validate_password_strength
 
 
 class LoginRequest(BaseModel):
@@ -45,15 +46,5 @@ class ChangePasswordRequest(BaseModel):
     @field_validator("new_password")
     @classmethod
     def validate_password_complexity(cls, value: SecretStr) -> SecretStr:
-        pwd = value.get_secret_value()
-        if len(pwd) < 12:
-            raise ValueError("Password must be at least 12 characters in length")
-        if not re.search(r"[A-Z]", pwd):
-            raise ValueError("Password must contain at least one uppercase letter")
-        if not re.search(r"[a-z]", pwd):
-            raise ValueError("Password must contain at least one lowercase letter")
-        if not re.search(r"\d", pwd):
-            raise ValueError("Password must contain at least one digit")
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", pwd):
-            raise ValueError("Password must contain at least one special character")
+        validate_password_strength(value.get_secret_value())
         return value

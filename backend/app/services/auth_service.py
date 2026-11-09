@@ -94,6 +94,16 @@ def authenticate_user(
     # Check if account is active
     if not user.is_active:
         verify_dummy_password()
+        record_failed_login_attempt(rate_limit_id)
+        log_security_event(
+            db,
+            event_type="LOGIN_FAILED",
+            status="FAILURE",
+            user_id=user.id,
+            target_resource=username,
+            ip_address=client_ip,
+            details={"reason": "Account inactive"},
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password",

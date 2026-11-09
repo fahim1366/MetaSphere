@@ -80,6 +80,16 @@ def get_session_by_token_hash(db: Session, token_hash: str) -> AppUserSession | 
     return db.execute(stmt).scalar_one_or_none()
 
 
+def touch_session(db: Session, token_hash: str, when: datetime) -> None:
+    """Record session activity to support sliding idle-timeout."""
+    db.execute(
+        update(AppUserSession)
+        .where(AppUserSession.token_hash == token_hash)
+        .values(last_activity_at=when)
+    )
+    db.commit()
+
+
 def revoke_session(db: Session, token_hash: str) -> bool:
     """Revoke a single session token."""
     stmt = (

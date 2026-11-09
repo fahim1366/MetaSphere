@@ -1,5 +1,8 @@
 """Bootstrap and seed administrative users and system roles into the MetaSphere database."""
 
+import os
+import secrets
+import string
 import sys
 import uuid
 from pathlib import Path
@@ -7,6 +10,8 @@ from pathlib import Path
 # Add backend directory to sys.path so app can be imported
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from app.core.config import settings
+from app.core.permissions import PERMISSION_DEFINITIONS
 from app.core.security import hash_password
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
@@ -15,51 +20,34 @@ from app.models.user import AppUser
 from sqlalchemy import select
 
 
+def _resolve_password(env_var: str) -> tuple[str, bool]:
+    """Return (password, was_generated). Prefer the environment; otherwise generate a strong one."""
+    value = os.environ.get(env_var)
+    if value:
+        return value, False
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    while True:
+        candidate = "".join(secrets.choice(alphabet) for _ in range(20))
+        if (
+            any(c.islower() for c in candidate)
+            and any(c.isupper() for c in candidate)
+            and any(c.isdigit() for c in candidate)
+            and any(c in "!@#$%^&*" for c in candidate)
+        ):
+            return candidate, True
+
+
 def seed_database() -> None:
-    print("[1/4] Ensuring database tables exist...")
-    Base.metadata.create_all(bind=engine)
+    if settings.APP_ENV == "production":
+        print("[1/4] Production mode: skipping create_all (schema must come from Alembic).")
+    else:
+        print("[1/4] Ensuring database tables exist (development convenience)...")
+        Base.metadata.create_all(bind=engine)
 
     session = SessionLocal()
     try:
         print("[2/4] Seeding core system permissions...")
-        permissions_data = [
-            (
-                "CATALOG_READ",
-                "Catalog Read",
-                "catalog",
-                "Permission to search and view catalog metadata",
-            ),
-            (
-                "CATALOG_WRITE",
-                "Catalog Write",
-                "catalog",
-                "Permission to edit business descriptions and tags",
-            ),
-            (
-                "METADATA_EXTRACT",
-                "Metadata Extraction",
-                "connector",
-                "Permission to trigger metadata discovery",
-            ),
-            (
-                "USER_MANAGE",
-                "User Administration",
-                "admin",
-                "Permission to manage catalog user accounts",
-            ),
-            (
-                "ROLE_MANAGE",
-                "Role Administration",
-                "admin",
-                "Permission to view and manage governance roles",
-            ),
-            (
-                "AUDIT_READ",
-                "Audit Inspection",
-                "security",
-                "Permission to inspect immutable security audit logs",
-            ),
-        ]
+        permissions_data = list(PERMISSION_DEFINITIONS)
 
         perms: dict[str, AppPermission] = {}
         for code, name, module, desc in permissions_data:
@@ -139,18 +127,23 @@ def seed_database() -> None:
             select(AppUser).where(AppUser.username == "admin")
         ).scalar_one_or_none()
         if not admin_user:
+            admin_password, admin_generated = _resolve_password("SEED_ADMIN_PASSWORD")
             admin_user = AppUser(
                 id=uuid.uuid4(),
                 username="admin",
                 email="admin@metasphere.local",
                 full_name="System Administrator",
-                password_hash=hash_password("Admin@123456"),
+                password_hash=hash_password(admin_password),
                 is_active=True,
                 is_superuser=True,
                 roles=[roles["ROLE_SUPER_ADMIN"]],
             )
             session.add(admin_user)
-            print("  -> Created user: admin (Password: Admin@123456)")
+            if admin_generated:
+                print("  -> Created user: admin")
+                print(f"     Generated one-time password (store it now): {admin_password}")
+            else:
+                print("  -> Created user: admin (password taken from SEED_ADMIN_PASSWORD)")
         else:
             print("  -> User admin already exists.")
 
@@ -158,19 +151,22 @@ def seed_database() -> None:
         steward_user = session.execute(
             select(AppUser).where(AppUser.username == "steward")
         ).scalar_one_or_none()
-        if not steward_user:
+        if not steward_user and os.environ.get("SEED_DEMO_USERS") == "1":
+            steward_password, steward_generated = _resolve_password("SEED_STEWARD_PASSWORD")
             steward_user = AppUser(
                 id=uuid.uuid4(),
                 username="steward",
                 email="steward@metasphere.local",
                 full_name="Sarah Steward",
-                password_hash=hash_password("User@123456"),
+                password_hash=hash_password(steward_password),
                 is_active=True,
                 is_superuser=False,
                 roles=[roles["ROLE_DATA_STEWARD"]],
             )
             session.add(steward_user)
-            print("  -> Created user: steward (Password: User@123456)")
+            print("  -> Created demo user: steward")
+            if steward_generated:
+                print(f"     Generated one-time password (store it now): {steward_password}")
 
         session.commit()
         print("\nDatabase seeding completed successfully!")

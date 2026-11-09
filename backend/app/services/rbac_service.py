@@ -1,3 +1,4 @@
+from app.core.permissions import ALL_PERMISSION_CODES
 from app.models.user import AppUser
 from app.schemas.auth import UserRead
 
@@ -13,14 +14,7 @@ def calculate_effective_permissions(user: AppUser) -> list[str]:
     Superusers implicitly receive all permissions.
     """
     if user.is_superuser:
-        return [
-            "CATALOG_READ",
-            "CATALOG_WRITE",
-            "SOURCE_MANAGE",
-            "USER_MANAGE",
-            "ROLE_MANAGE",
-            "AUDIT_READ",
-        ]
+        return list(ALL_PERMISSION_CODES)
 
     permissions_set: set[str] = set()
     for role in user.roles:
